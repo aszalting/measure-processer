@@ -68,7 +68,7 @@ def illesz(x,y):
     legend()
     return array([hiba(m,sqrt(sm)),hiba(b,sqrt(sb))])
   
-  def strszam(szam,jegy):
+def strszam(szam,jegy):
     if type(szam)==float:
         strin=""
         mant=int(floor(log10(abs(szam))))
