@@ -19,14 +19,15 @@ class error:
         if type(self) == error and type(other) == error:
             return error(self.value - other.value, self.error + other.error)
         elif type(self) == error and type(other) != error:
-            return error(self.value - other, self.error+ other)
+            return error(self.value - other, self.error + other)
         else:
             print("input must be float int or error")
     def __rsub__(self,other):
         return error(other-self.value, self.error)
     def __mul__(self,other):
         if type(self) == error and type(other) == error:
-            return error(self.value * other.value, (self.error/self.value + other.error/other.value)*self.value*other.value)
+            return error(self.value * other.value, 
+                         (abs(self.error/self.value + other.error/other.value)*self.value*other.value))
         elif type(self) == error and type(other) != error:
             return error(self.value*other,self.error*abs(other))
         else:
@@ -35,15 +36,16 @@ class error:
         return error(self.value*other,self.error*abs(other))
     def __truediv__(self,other):
         if type(self) == error and type(other) == error:
-            return error(self.value / other.value, (self.error/self.value + other.error/other.value)*self.value/other.value)
+            return error(self.value / other.value, 
+                         (abs(self.error/self.value + other.error/other.value)*self.value/other.value))
         elif type(self) == error and type(other) != error:
-            return error(self.value/other,self.error/abs(other))
+            return error(self.value/other,self.error/abs(self.value))
         else:
             print("input must be float int or error")
     def __rtruediv__(self,other):
-        return error(other/self.value,abs(other)/self.error)
+        return error(other/self.value,abs(self.error/self.value**2*other))
 def erfun(self,fun):
-    h=1e-5
+    h=1e-15
     if type(self) == error:
         return error(fun(self.value),abs((fun(self.value+h)-fun(self.value-h))/(2*h))*self.error)
     else:
@@ -66,7 +68,10 @@ def illesz(x,y):
     t=linspace(min(x),max(x),2)
     plot(t,t*m+b,label="illesztés")
     legend()
-    return array([hiba(m,sqrt(sm)),hiba(b,sqrt(sb))])
+    return array([error(m,sqrt(sm)),error(b,sqrt(sb))])
+
+def metsz(f,g):
+    return array([(f[1]-g[1])/(g[0]-f[0]),f[1]+f[0]*(f[1]-g[1])/(g[0]-f[0])])
   
 def strszam(szam,jegy):
     if type(szam)==float:
@@ -96,7 +101,7 @@ def strszam(szam,jegy):
     else:
         print("input must be float int or error")
 
-def tablazat(adat,cimsor,jegy):
+def tablazatx(adat,cimsor,jegy):
     beg="\\begin{tabular}{|"+"c|"*len(cimsor)+"}"
     print(beg)
     print("\\hline")
@@ -111,6 +116,25 @@ def tablazat(adat,cimsor,jegy):
         for j in range(adat.shape[1]-1):
             adatsor+=strszam(adat[i,j],jegy)+" & "
         adatsor+=strszam(adat[i,-1],jegy)+ " \\\\"
+        print(adatsor)
+        print("\\hline")
+    print("\\end{tabular}")
+    
+def tablazat(adat,cimsor,jegy):
+    beg="\\begin{tabular}{|"+"c|"*len(cimsor)+"}"
+    print(beg)
+    print("\\hline")
+    cim=""
+    for i in range(len(cimsor)-1):
+        cim+=cimsor[i]+" & "
+    cim+=cimsor[-1] + " \\\\"
+    print(cim)
+    print("\\hline")
+    for i in range(adat.shape[0]):
+        adatsor=""
+        for j in range(adat.shape[1]-1):
+            adatsor+=str(adat[i,j])+" & "
+        adatsor+=str(adat[i,-1])+ " \\\\"
         print(adatsor)
         print("\\hline")
     print("\\end{tabular}")
