@@ -6,10 +6,10 @@ class error:
     def p(self):
         return array([self.value,self.error])
     def __add__(self, other):
-        if type(other) == float or type(other) == int:
-            return error(self.value + other, self.error)
-        elif type(other) == error:
+        if type(self) == error and type(other) == error:
             return error(self.value + other.value, self.error+ other.error)
+        elif type(self) == error and type(other) != error:
+            return error(self.value + other, self.error)
         else:
             print("input must be float int or error")
     def __radd__(self, other):
@@ -19,7 +19,7 @@ class error:
         if type(self) == error and type(other) == error:
             return error(self.value - other.value, self.error + other.error)
         elif type(self) == error and type(other) != error:
-            return error(self.value - other, self.error + other)
+            return error(self.value - other, self.error)
         else:
             print("input must be float int or error")
     def __rsub__(self,other):
@@ -27,7 +27,7 @@ class error:
     def __mul__(self,other):
         if type(self) == error and type(other) == error:
             return error(self.value * other.value, 
-                         (abs(self.error/self.value + other.error/other.value)*self.value*other.value))
+                         (self.error/abs(self.value) + other.error/abs(other.value))*abs(self.value*other.value))
         elif type(self) == error and type(other) != error:
             return error(self.value*other,self.error*abs(other))
         else:
@@ -37,13 +37,22 @@ class error:
     def __truediv__(self,other):
         if type(self) == error and type(other) == error:
             return error(self.value / other.value, 
-                         (abs(self.error/self.value + other.error/other.value)*self.value/other.value))
+                         (self.error/abs(self.value) + other.error/abs(other.value))*abs(self.value/other.value))
         elif type(self) == error and type(other) != error:
             return error(self.value/other,self.error/abs(self.value))
         else:
             print("input must be float int or error")
     def __rtruediv__(self,other):
         return error(other/self.value,abs(self.error/self.value**2*other))
+    def __pow__(self,other):
+        if type(self) == error and type(other) == error:
+            return error(self.value**other.value,other.value*self.error*self.value**(other.value-1))
+        elif type(self) == error and type(other) != error:
+            return error(self.value**other,other*self.error*self.value**(other-1))
+        else:
+            print("input must be float int or error")
+    def __rpow__(self,other):
+        return error(other**self.value,-1)
 def erfun(self,fun):
     h=1e-15
     if type(self) == error:
@@ -72,6 +81,9 @@ def illesz(x,y):
 
 def metsz(f,g):
     return array([(f[1]-g[1])/(g[0]-f[0]),f[1]+f[0]*(f[1]-g[1])/(g[0]-f[0])])
+
+def atlag(a):
+    return error(a.mean(axis=None),a.std(axis=None))
   
 def strszam(szam,jegy):
     if type(szam)==float:
