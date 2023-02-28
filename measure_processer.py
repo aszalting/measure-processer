@@ -12,6 +12,7 @@ class error:
             return error(self.value + other, self.error)
         else:
             print("input must be float int or error")
+            return NaN
     def __radd__(self, other):
         return error(self.value + other, self.error)
     
@@ -22,6 +23,7 @@ class error:
             return error(self.value - other, self.error)
         else:
             print("input must be float int or error")
+            return NaN
     def __rsub__(self,other):
         return error(other-self.value, self.error)
     def __mul__(self,other):
@@ -32,16 +34,20 @@ class error:
             return error(self.value*other,self.error*abs(other))
         else:
             print("input must be float int or error")
+            return NaN
     def __rmul__(self,other):
         return error(self.value*other,self.error*abs(other))
+    
     def __truediv__(self,other):
         if type(self) == error and type(other) == error:
             return error(self.value / other.value, 
                          (self.error/abs(self.value) + other.error/abs(other.value))*abs(self.value/other.value))
         elif type(self) == error and type(other) != error:
-            return error(self.value/other,self.error/abs(self.value))
+            return error(self.value/other,self.error/abs(other))
         else:
             print("input must be float int or error")
+            return NaN
+    
     def __rtruediv__(self,other):
         return error(other/self.value,abs(self.error/self.value**2*other))
     def __pow__(self,other):
@@ -51,6 +57,7 @@ class error:
             return error(self.value**other,other*self.error*self.value**(other-1))
         else:
             print("input must be float int or error")
+            return NaN
     def __rpow__(self,other):
         return error(other**self.value,-1)
 def erfun(self,fun):
@@ -60,7 +67,7 @@ def erfun(self,fun):
     else:
         return error(fun(self),0)
 
-def illesz(x,y):
+def illesz(x,y,show=True,leg=True,mark="o"):
     xatlag=average(x)
     yatlag=average(y)
     m=0
@@ -73,10 +80,12 @@ def illesz(x,y):
     s=sum((y-(x*m+b))**2)/(len(x)-2)
     sm=s/(sum(x**2)-len(x)*xatlag**2)
     sb=s*(1/len(x)+xatlag**2/(sum(x**2)-(len(x))*xatlag**2))
-    plot(x,y,linestyle="",marker="o",label="mérés")
-    t=linspace(min(x),max(x),2)
-    plot(t,t*m+b,label="illesztés")
-    legend()
+    if show==True:
+        plot(x,y,linestyle="",marker=mark,label="mérés")
+        t=linspace(min(x),max(x),2)
+        plot(t,t*m+b,label="illesztés")
+        if leg ==True:
+            legend()
     return array([error(m,sqrt(sm)),error(b,sqrt(sb))])
 
 def metsz(f,g):
