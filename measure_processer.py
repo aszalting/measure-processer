@@ -93,6 +93,51 @@ def metsz(f,g):
 
 def atlag(a):
     return error(a.mean(axis=None),a.std(axis=None))
+
+def extre(y,d=1,x=0,max=1):
+    if type(x)==int:
+        x=array(range(len(y)))
+    maxind=0
+    maxims1=[]
+    maxims2=[]
+    if max==1:
+        for i in range(1,len(y)):
+            if (x[i]-x[maxind])<=d:
+                if y[i]>y[maxind]:
+                    maxind=i
+            else:
+                maxims1+=[maxind]
+                maxind=i
+        maxims1+=[maxind]
+        maxind=-1
+        for i in range(len(y)-1,-1,-1):
+            if (x[maxind]-x[i])<=d:
+                if y[i]>y[maxind]:
+                    maxind=i
+            else:
+                maxims2+=[maxind]
+                maxind=i
+        maxims2+=[maxind]
+    else:
+        for i in range(1,len(y)):
+            if (x[i]-x[maxind])<=d:
+                if y[i]<y[maxind]:
+                    maxind=i
+            else:
+                maxims1+=[maxind]
+                maxind=i
+        maxims1+=[maxind]
+        maxind=-1
+        for i in range(len(y)-1,-1,-1):
+            if (x[maxind]-x[i])<=d:
+                if y[i]<y[maxind]:
+                    maxind=i
+            else:
+                maxims2+=[maxind]
+                maxind=i
+        maxims2+=[maxind]
+    maxindex=[i for i in maxims1 if i in maxims2]
+    return x[array(maxindex)], y[array(maxindex)]
   
 def strszam(szam,jegy):
     if type(szam)==float:
@@ -121,6 +166,8 @@ def strszam(szam,jegy):
         return strin
     else:
         print("input must be float int or error")
+        
+        
 
 def tablazatx(adat,cimsor,jegy):
     beg="\\begin{tabular}{|"+"c|"*len(cimsor)+"}"
